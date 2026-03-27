@@ -49,7 +49,7 @@ function IconGrid({
 
 export default function IconPicker({ selected, onSelect }: IconPickerProps) {
   return (
-    <div className="flex flex-col gap-3 max-h-48 overflow-y-auto pr-1">
+    <div className="flex flex-col gap-3 max-h-48 overflow-y-auto px-1 -mx-1">
       <div>
         <p className="text-xs text-white/40 mb-2 uppercase tracking-wider">Marcas</p>
         <IconGrid icons={BRAND_ICONS} selected={selected} onSelect={onSelect} />
