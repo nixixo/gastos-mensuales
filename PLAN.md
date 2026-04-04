@@ -27,11 +27,28 @@ Construir una app web de seguimiento de gastos mensuales sobre el proyecto Next.
 ```typescript
 interface Expense {
   id: string;          // crypto.randomUUID()
-  name: string;        // "Spotify", "Supermercado", etc.
+  userId: string;      // ID del usuario (auth)
+  name: string;        // "Spotify", "Supermercado", "LaMom", etc.
   amount: number;      // monto en CLP (entero, sin decimales)
   icon: string;        // key del icon-map: "spotify", "food", etc.
+  date: string;        // ISO date string (YYYY-MM-DD)
+  isMonthly: boolean;  // true si es gasto recurrente mensual
   month: number;       // 1-12
   year: number;        // 2026
+  createdAt: number;   // Date.now()
+}
+
+interface NameMapping {
+  id: string;          // crypto.randomUUID()
+  userId: string;      // ID del usuario
+  customName: string;  // "LaMom", "Netflix Fam", etc.
+  iconKey: string;     // key del icono (ej: "food")
+  createdAt: number;   // Date.now()
+}
+
+interface User {
+  id: string;          // UUID from Supabase
+  username: string;    // nombre de usuario (login)
   createdAt: number;   // Date.now()
 }
 ```
@@ -67,61 +84,40 @@ src/
 
 ## Implementacion paso a paso
 
-### Fase 1: Configuracion base
-1. `npm install idb react-icons`
-2. Modificar `globals.css` - forzar tema oscuro, variables CSS negro/blanco puro
-3. Modificar `layout.tsx` - metadata "Expense Tracker", clase `dark` en `<html>`
-4. Modificar `next.config.ts` - agregar `output: 'export'` para deploy estatico
+### ✅ FASE 1: Supabase Integration + Modelo de Datos
+1. ✅ Crear Supabase project y tablas: `users`, `expenses`, `name_mappings`
+2. ✅ Agregar `.env.local` con credenciales Supabase
+3. ✅ Crear `src/lib/supabase.ts` - cliente Supabase + `createOrGetUser()`
+4. ✅ Actualizar `src/lib/types.ts` - agregar `date`, `isMonthly`, `userId`, nuevas interfaces
 
-### Fase 2: Infraestructura
-5. Crear `src/lib/types.ts` - interface Expense
-6. Crear `src/lib/utils.ts` - `formatCLP()` (separador de miles con punto), helpers de mes/ano
-7. Crear `src/lib/db.ts` - IndexedDB con indice compuesto `[year, month]`, funciones:
-   - `getExpensesByMonth(year, month)` → Expense[]
-   - `addExpense(expense)` → void
-   - `deleteExpense(id)` → void
-8. Crear `src/hooks/useExpenses.ts` - hook que expone:
-   - `{ expenses, total, isLoading, addExpense, deleteExpense }`
-   - Recibe `{ month, year }` como parametro
+### ✅ FASE 2: Autenticacion + Rutas Protegidas
+5. ✅ Crear `src/hooks/useAuth.ts` - login/logout con localStorage
+6. ✅ Crear `src/components/AuthPage.tsx` - login form (solo username)
+7. ✅ Crear `src/app/auth/page.tsx` - ruta de autenticacion
+8. ✅ Reescribir `src/lib/db.ts` - Supabase + IndexedDB hybrid con CRUD
+9. ✅ Actualizar `src/app/page.tsx` - proteger con auth, logout button
+10. ✅ Actualizar `src/hooks/useExpenses.ts` - aceptar userId como param
 
-### Fase 3: Sistema de iconos
-9. Crear `src/lib/icon-map.ts`:
-   - Registro de ~25 iconos de marcas: Spotify, Netflix, Amazon, YouTube, Uber, Steam, Disney+, Apple, Google, Adobe, HBO, Twitch, PlayStation, Xbox, GitHub
-   - Registro de ~15 iconos de categorias: comida, cafe, transporte, hogar, salud, gym, ropa, telefono, wifi, educacion, viaje, compras, musica, cine, default
-   - Funcion `detectIcon(name)` - busca coincidencia por keywords en el nombre
-   - Cada entrada tiene: `icon`, `keywords[]`, `category`, `color?` (color de marca opcional)
-10. Crear `src/components/IconPicker.tsx` - grilla de iconos seleccionables con highlight
+### ✅ FASE 3: Mapeos Personalizados + Sugerencias
+11. ✅ Crear `src/components/NameMappingManager.tsx` - UI para mappings
+12. ✅ Crear `src/components/SettingsPage.tsx` - settings container
+13. ✅ Crear `src/app/settings/page.tsx` - ruta de settings
+14. ✅ Actualizar `src/components/AddExpenseModal.tsx` - autocomplete con suggestions
+15. ✅ Agregar `date` picker y `isMonthly` checkbox al modal
+16. ✅ Actualizar `src/components/History.tsx` - expandable acordeon por mes
+17. ✅ Actualizar `src/components/ExpenseItem.tsx` - mostrar fecha y badge "Mensual"
 
-### Fase 4: Grafico donut
-11. Crear `src/components/DonutChart.tsx` - SVG custom:
-    - Usa `<circle>` con `stroke-dasharray` / `stroke-dashoffset` para cada segmento
-    - `stroke-width` grueso (~14px) para el look "segmentado grueso"
-    - Gaps de ~4-6px entre segmentos
-    - Colores de marca cuando aplica (ej: Spotify verde), blanco/gris para genericos
-    - Total en CLP centrado dentro del donut
-    - Animacion de entrada con CSS transition
+### ✅ FASE 4: Gastos Recurrentes Mensuales
+18. ✅ Crear `src/lib/recurring.ts` - logica para copiar expenses con `isMonthly=true`
+19. ✅ Integrar `handleMonthlyRecurring()` en `useExpenses` hook
+   - Cuando cambia mes/año, copia automáticamente gastos mensuales del mes anterior
+   - Preserva día del mes en la nueva fecha
+   - Evita duplicados usando ref con key `${userId}-${year}-${month}`
 
-### Fase 5: Componentes UI
-12. Crear `src/components/MonthSelector.tsx` - flechas izq/der + "Marzo 2026"
-13. Crear `src/components/ExpenseItem.tsx` - fila con: icono + nombre + $monto + boton X eliminar
-14. Crear `src/components/ExpenseList.tsx` - lista scrolleable de ExpenseItems
-15. Crear `src/components/EmptyState.tsx` - mensaje minimalista "Sin gastos este mes"
-16. Crear `src/components/AddExpenseModal.tsx` - modal overlay con:
-    - Input de nombre (detecta icono automaticamente mientras escribes)
-    - IconPicker (se auto-selecciona si `detectIcon` encuentra match)
-    - Input de monto numerico
-    - Boton confirmar
-
-### Fase 6: Pagina principal
-17. Reescribir `src/app/page.tsx` con `'use client'`:
-    - Usa `useExpenses` hook
-    - Compone: MonthSelector → DonutChart → ExpenseList → Boton flotante "+"
-    - El boton "+" abre AddExpenseModal
-
-### Fase 7: Polish y responsive
-18. Transiciones CSS para modal (fade in/out)
-19. Responsive: modal fullscreen en mobile, centered en desktop
-20. Touch targets minimo 44px para mobile
+### Fase 5: Testing + Validacion
+20. [ ] Verificar build sin errores: `npm run build`
+21. [ ] Test manual: login → add gasto mensual → cambiar mes → verificar copia automatica
+22. [ ] Test con settings: crear mapping → usar en gasto nuevo
 
 ---
 

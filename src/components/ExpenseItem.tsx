@@ -62,6 +62,13 @@ export default function ExpenseItem({
 
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{expense.name}</p>
+        <p className="text-xs text-white/40">
+          {new Date(expense.date).toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+          })}
+          {expense.isMonthly && ' • Mensual'}
+        </p>
       </div>
 
       {editing ? (

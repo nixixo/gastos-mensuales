@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { LuPlus } from "react-icons/lu";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { LuPlus, LuLogOut, LuSettings } from "react-icons/lu";
+import { useAuth } from "@/hooks/useAuth";
 import { useExpenses } from "@/hooks/useExpenses";
 import { getCurrentMonth, getMonthName } from "@/lib/utils";
 import DonutChart from "@/components/DonutChart";
@@ -14,14 +16,71 @@ const current = getCurrentMonth();
 type Tab = "actual" | "historial";
 
 export default function Home() {
+  const router = useRouter();
+  const { user, loading: authLoading, logout } = useAuth();
   const [tab, setTab] = useState<Tab>("actual");
   const [modalOpen, setModalOpen] = useState(false);
+  const [userId, setUserId] = useState<string>("");
+  const [isClient, setIsClient] = useState(false);
+
+  // Hydration fix: only render on client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/auth");
+    }
+  }, [authLoading, user, router]);
+
+  // Mantener userId estable incluso cuando user cambia
+  useEffect(() => {
+    if (user?.id) {
+      setUserId(user.id);
+    }
+  }, [user?.id]);
 
   const { expenses, total, isLoading, addExpense, deleteExpense, updateAmount } =
-    useExpenses(current.month, current.year);
+    useExpenses(userId, current.month, current.year);
+
+  // Prevent hydration mismatch during auth check
+  if (!isClient || authLoading || !user) {
+    return null;
+  }
+
+  const handleLogout = () => {
+    logout();
+    router.push("/auth");
+  };
 
   return (
     <div className="flex flex-col flex-1 w-full max-w-md mx-auto px-4 py-8 gap-6">
+      {/* User header with logout */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs text-white/60">Bienvenido</p>
+          <h1 className="text-lg font-semibold text-white">{user.username}</h1>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => router.push("/settings")}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            title="Configuración"
+          >
+            <LuSettings size={20} />
+          </button>
+          <button
+            onClick={handleLogout}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            title="Cerrar sesión"
+          >
+            <LuLogOut size={20} />
+          </button>
+        </div>
+      </div>
+
       {/* Month header */}
       <h2 className="text-lg font-medium tracking-tight text-center">
         {getMonthName(current.month)} {current.year}
@@ -77,10 +136,11 @@ export default function Home() {
             open={modalOpen}
             onClose={() => setModalOpen(false)}
             onAdd={addExpense}
+            userId={user.id}
           />
         </>
       ) : (
-        <History />
+        <History userId={user.id} />
       )}
     </div>
   );
