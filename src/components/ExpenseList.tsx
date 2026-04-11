@@ -16,7 +16,7 @@ export default function ExpenseList({ expenses, onDelete, onUpdateAmount }: Expe
   }
 
   return (
-    <div className="flex flex-col divide-y divide-ui">
+    <div className="flex flex-col gap-2">
       {expenses.map((expense) => (
         <ExpenseItem
           key={expense.id}

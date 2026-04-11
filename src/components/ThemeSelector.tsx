@@ -31,7 +31,7 @@ export default function ThemeSelector() {
       <button
         onClick={() => setOpen(!open)}
         title="Cambiar tema"
-        className="p-2 rounded-lg hover:bg-ui-hover transition-colors text-secondary hover:text-primary"
+        className="p-2 rounded-lg hover:bg-ui-hover transition-colors text-primary"
       >
         <LuPalette size={20} />
       </button>
