@@ -35,14 +35,14 @@ export function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+    <div className="min-h-screen bg-primary flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-primary mb-2">
             Gastetes 🐽
           </h1>
-          <p className="text-sm text-white/40">
+          <p className="text-sm text-tertiary">
             Controla tus gastos fácilmente
           </p>
         </div>
@@ -51,7 +51,7 @@ export function AuthPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Username input */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="username" className="text-xs text-white/40 uppercase tracking-wider">
+            <label htmlFor="username" className="text-xs text-tertiary uppercase tracking-wider">
               ¿Cuál es tu nombre?
             </label>
             <input
@@ -60,7 +60,7 @@ export function AuthPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Ej: Juan"
-              className="w-full bg-white/5 rounded-xl px-4 py-3 border border-white/10 focus:border-white/30 transition-colors outline-none text-white text-sm placeholder:text-white/20"
+              className="w-full bg-ui-input rounded-xl px-4 py-3 border border-ui focus:border-ui transition-colors outline-none text-primary text-sm placeholder:text-tertiary"
               disabled={loading}
               autoFocus
             />
@@ -77,14 +77,14 @@ export function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-white text-black font-semibold py-3 px-4 rounded-xl hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+            className="w-full btn-primary font-semibold py-3 px-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed mt-6"
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
         {/* Footer message */}
-        <p className="text-center text-white/30 text-xs mt-6">
+        <p className="text-center text-tertiary text-xs mt-6">
           Tus datos se guardarán localmente y en la nube
         </p>
       </div>

@@ -28,16 +28,16 @@ function IconGrid({
             onClick={() => onSelect(key)}
             className={`flex flex-col items-center justify-center gap-1 rounded-lg p-2 transition-colors ${
               isSelected
-                ? "bg-white/15 ring-1 ring-white"
-                : "hover:bg-white/5"
+                ? "bg-ui-hover ring-1 ring-accent-primary"
+                : "hover:bg-ui-input"
             }`}
           >
             <Icon
               size={20}
-              className={isSelected && entry.color ? "" : "text-white/70"}
+              className={isSelected && entry.color ? "" : "text-secondary"}
               style={isSelected && entry.color ? { color: entry.color } : undefined}
             />
-            <span className="text-[10px] text-white/50 leading-tight truncate w-full text-center">
+            <span className="text-[10px] text-tertiary leading-tight truncate w-full text-center">
               {entry.label}
             </span>
           </button>
@@ -51,11 +51,11 @@ export default function IconPicker({ selected, onSelect }: IconPickerProps) {
   return (
     <div className="flex flex-col gap-3 max-h-56 overflow-y-auto px-1 -mx-1 pb-2">
       <div>
-        <p className="text-xs text-white/40 mb-2 uppercase tracking-wider">Marcas</p>
+        <p className="text-xs text-tertiary mb-2 uppercase tracking-wider">Marcas</p>
         <IconGrid icons={BRAND_ICONS} selected={selected} onSelect={onSelect} />
       </div>
       <div>
-        <p className="text-xs text-white/40 mb-2 uppercase tracking-wider">Categorias</p>
+        <p className="text-xs text-tertiary mb-2 uppercase tracking-wider">Categorias</p>
         <IconGrid icons={GENERAL_ICONS} selected={selected} onSelect={onSelect} />
       </div>
     </div>

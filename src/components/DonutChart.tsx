@@ -27,14 +27,14 @@ const CENTER = 160;
 const SEGMENT_GAP_DEG = 6;
 
 const DEFAULT_COLORS = [
-  "#ffffff",
-  "#a3a3a3",
-  "#737373",
-  "#d4d4d4",
-  "#525252",
-  "#e5e5e5",
-  "#404040",
-  "#fafafa",
+  "var(--color-chart-1)",
+  "var(--color-chart-2)",
+  "var(--color-chart-3)",
+  "var(--color-chart-4)",
+  "var(--color-chart-5)",
+  "var(--color-chart-6)",
+  "var(--color-chart-7)",
+  "var(--color-chart-8)",
 ];
 
 function groupExpensesByIcon(expenses: Expense[]): Segment[] {
@@ -154,6 +154,7 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
           height={svgSize}
           viewBox={`0 0 ${svgSize} ${svgSize}`}
           onMouseLeave={() => setHoveredSegment(null)}
+          className="text-tertiary"
         >
           <defs>
             {/* Glow filter for hovered segments */}
@@ -187,9 +188,9 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
                 cy={CENTER}
                 r={radius}
                 fill="none"
-                stroke="white"
+                stroke="currentColor"
                 strokeWidth={RING_WIDTH}
-                opacity={0.03}
+                opacity={0.08}
               />
             );
           })}
@@ -243,16 +244,16 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
 
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-2xl font-semibold tracking-tight">
+          <span className="text-2xl font-semibold tracking-tight text-primary">
             {formatCLP(total)}
           </span>
-          <span className="text-xs text-white/40">total</span>
+          <span className="text-xs text-tertiary">total</span>
         </div>
 
         {/* Tooltip */}
         {hoveredData && (
           <div
-            className="absolute z-10 pointer-events-none bg-neutral-900 border border-white/10 rounded-xl px-4 py-3 shadow-xl"
+            className="absolute z-10 pointer-events-none bg-secondary border border-ui rounded-xl px-4 py-3 shadow-xl text-primary"
             style={{
               left: tooltipPos.x,
               top: tooltipPos.y,
@@ -273,7 +274,7 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
                         : undefined
                     }
                     className={
-                      entry.category !== "brand" ? "text-white/70" : ""
+                      entry.category !== "brand" ? "text-secondary" : ""
                     }
                   />
                 );
@@ -281,10 +282,10 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
               <div className="flex flex-col">
                 <span className="text-sm font-medium">{hoveredData.label}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-white/60">
+                  <span className="text-sm text-secondary">
                     {formatCLP(hoveredData.amount)}
                   </span>
-                  <span className="text-xs text-white/40">
+                  <span className="text-xs text-tertiary">
                     {Math.round(hoveredData.percentage * 100)}%
                   </span>
                 </div>
@@ -303,7 +304,7 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
                 className="inline-block h-2 w-2 rounded-full"
                 style={{ backgroundColor: seg.color }}
               />
-              <span className="text-xs text-white/50">
+              <span className="text-xs text-secondary">
                 {seg.label}
               </span>
             </div>

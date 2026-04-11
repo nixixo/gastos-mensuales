@@ -20,16 +20,16 @@ export default function MonthSelector({
     <div className="flex items-center justify-between w-full max-w-xs mx-auto">
       <button
         onClick={onPrev}
-        className="p-2 rounded-full hover:bg-white/5 transition-colors"
+        className="p-2 rounded-full hover:bg-ui-hover transition-colors"
       >
         <LuChevronLeft size={20} />
       </button>
-      <h2 className="text-lg font-medium tracking-tight">
+      <h2 className="text-lg font-medium tracking-tight text-primary">
         {getMonthName(month)} {year}
       </h2>
       <button
         onClick={onNext}
-        className="p-2 rounded-full hover:bg-white/5 transition-colors"
+        className="p-2 rounded-full hover:bg-ui-hover transition-colors"
       >
         <LuChevronRight size={20} />
       </button>

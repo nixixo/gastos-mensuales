@@ -3,19 +3,104 @@
 :root {
   --background: #000000;
   --foreground: #ffffff;
+
+  /* Theme color variables (applied dynamically) */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-tertiary: #0f0f0f;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.5);
+  --color-text-tertiary: rgba(255, 255, 255, 0.2);
+
+  --color-ui-border: rgba(255, 255, 255, 0.1);
+  --color-ui-hover: rgba(255, 255, 255, 0.05);
+  --color-ui-input: rgba(255, 255, 255, 0.05);
+
+  --color-accent-primary: #ffffff;
+
+  /* Chart palette */
+  --color-chart-1: #ffffff;
+  --color-chart-2: #a3a3a3;
+  --color-chart-3: #737373;
+  --color-chart-4: #d4d4d4;
+  --color-chart-5: #525252;
+  --color-chart-6: #e5e5e5;
+  --color-chart-7: #404040;
+  --color-chart-8: #fafafa;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--color-bg-primary);
+  --color-foreground: var(--color-text-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Utility classes for theme colors */
+.bg-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.bg-tertiary {
+  background-color: var(--color-bg-tertiary);
+}
+
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--color-text-tertiary);
+}
+
+.border-ui {
+  border-color: var(--color-ui-border);
+}
+
+.divide-ui > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--color-ui-border);
+}
+
+.bg-ui-hover {
+  background-color: var(--color-ui-hover);
+}
+
+.bg-ui-input {
+  background-color: var(--color-ui-input);
+}
+
+.btn-primary {
+  background-color: var(--color-accent-primary);
+  color: var(--color-bg-primary);
+  transition: opacity 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.2;
+}
+
+.ring-accent-primary {
+  --tw-ring-color: var(--color-accent-primary);
 }
 
 /* Scrollbar minimal */

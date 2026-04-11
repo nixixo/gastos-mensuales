@@ -15,14 +15,14 @@ export function SettingsPage({ userId }: SettingsPageProps) {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          className="p-2 hover:bg-ui-hover rounded-lg transition-colors"
           title="Volver"
         >
           <LuArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-lg font-semibold text-white">Configuración</h1>
-          <p className="text-xs text-white/40">Personaliza tu experiencia</p>
+          <h1 className="text-lg font-semibold text-primary">Configuración</h1>
+          <p className="text-xs text-tertiary">Personaliza tu experiencia</p>
         </div>
       </div>
 

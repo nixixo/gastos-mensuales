@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { LuX, LuCheck } from "react-icons/lu";
 import { ICON_MAP } from "@/lib/icon-map";
-import { formatCLP } from "@/lib/utils";
+import { formatCLP, formatDateString } from "@/lib/utils";
 import type { Expense } from "@/lib/types";
 
 interface ExpenseItemProps {
@@ -52,28 +52,25 @@ export default function ExpenseItem({
 
   return (
     <div className="flex items-center gap-3 py-3 px-1 group">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ui-input">
         <Icon
           size={18}
-          className={brandColor ? "" : "text-white/70"}
+          className={brandColor ? "" : "text-secondary"}
           style={brandColor ? { color: brandColor } : undefined}
         />
       </div>
 
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{expense.name}</p>
-        <p className="text-xs text-white/40">
-          {new Date(expense.date).toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: 'short',
-          })}
+        <p className="text-xs text-tertiary">
+          {formatDateString(expense.date)}
           {expense.isMonthly && ' • Mensual'}
         </p>
       </div>
 
       {editing ? (
         <div className="flex items-center gap-1.5">
-          <span className="text-sm text-white/40">$</span>
+          <span className="text-sm text-tertiary">$</span>
           <input
             ref={inputRef}
             type="number"
@@ -81,13 +78,13 @@ export default function ExpenseItem({
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleConfirm}
-            className="w-24 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-sm outline-none focus:border-white/30 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-24 bg-ui-input border border-ui rounded-lg px-2 py-1 text-sm outline-none focus:border-ui tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
           <button
             onClick={handleConfirm}
-            className="p-1 rounded-full hover:bg-white/10 transition-colors"
+            className="p-1 rounded-full hover:bg-ui-hover transition-colors"
           >
-            <LuCheck size={14} className="text-white/60" />
+            <LuCheck size={14} className="text-tertiary" />
           </button>
         </div>
       ) : (

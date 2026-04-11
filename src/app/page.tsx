@@ -10,6 +10,7 @@ import DonutChart from "@/components/DonutChart";
 import ExpenseList from "@/components/ExpenseList";
 import AddExpenseModal from "@/components/AddExpenseModal";
 import History from "@/components/History";
+import ThemeSelector from "@/components/ThemeSelector";
 
 const current = getCurrentMonth();
 
@@ -60,20 +61,21 @@ export default function Home() {
       {/* User header with logout */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-white/60">Bienvenido</p>
-          <h1 className="text-lg font-semibold text-white">{user.username}</h1>
+          <p className="text-xs text-secondary">Bienvenido</p>
+          <h1 className="text-lg font-semibold text-primary">{user.username}</h1>
         </div>
         <div className="flex gap-2">
+          <ThemeSelector />
           <button
             onClick={() => router.push("/settings")}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-ui-hover rounded-lg transition-colors"
             title="Configuración"
           >
             <LuSettings size={20} />
           </button>
           <button
             onClick={handleLogout}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-ui-hover rounded-lg transition-colors"
             title="Cerrar sesión"
           >
             <LuLogOut size={20} />
@@ -87,13 +89,13 @@ export default function Home() {
       </h2>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-white/5 rounded-xl p-1">
+      <div className="flex gap-1 bg-ui-input rounded-xl p-1">
         <button
           onClick={() => setTab("actual")}
           className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
             tab === "actual"
-              ? "bg-white/10 text-white"
-              : "text-white/40 hover:text-white/60"
+              ? "bg-ui-hover text-primary"
+              : "text-tertiary hover:text-secondary"
           }`}
         >
           Actual
@@ -102,8 +104,8 @@ export default function Home() {
           onClick={() => setTab("historial")}
           className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
             tab === "historial"
-              ? "bg-white/10 text-white"
-              : "text-white/40 hover:text-white/60"
+              ? "bg-ui-hover text-primary"
+              : "text-tertiary hover:text-secondary"
           }`}
         >
           Historial
@@ -127,7 +129,7 @@ export default function Home() {
           {/* FAB */}
           <button
             onClick={() => setModalOpen(true)}
-            className="fixed bottom-6 right-6 h-14 w-14 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors active:scale-95"
+            className="fixed bottom-6 right-6 h-14 w-14 flex items-center justify-center rounded-full btn-primary shadow-lg active:scale-95"
           >
             <LuPlus size={24} />
           </button>
