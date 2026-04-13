@@ -24,6 +24,7 @@ export interface ThemeColors {
   // Accent
   accent: {
     primary: string;      // Primary accent (button, primary CTA)
+    contrast: string;     // Contrast color for accent surfaces
   };
   // Chart palette (generic categories)
   chart: {
@@ -59,6 +60,7 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     },
     accent: {
       primary: '#ffffff',        // White button
+      contrast: '#000000',       // Black for check/icon on white
     },
     chart: {
       c1: '#ffffff',
@@ -91,6 +93,7 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     },
     accent: {
       primary: '#4a4340',        // Dark brownish button
+      contrast: '#f5f3f0',       // Light for check/icon on dark
     },
     chart: {
       c1: '#4a4340',
@@ -123,6 +126,7 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     },
     accent: {
       primary: '#b45571',        // Rose button
+      contrast: '#fdf4f6',       // Light for check/icon on rose
     },
     chart: {
       c1: '#b45571',
@@ -163,6 +167,7 @@ export function applyTheme(themeName: ThemeName) {
   root.style.setProperty('--color-ui-input', theme.ui.input);
 
   root.style.setProperty('--color-accent-primary', theme.accent.primary);
+  root.style.setProperty('--color-accent-contrast', theme.accent.contrast);
 
   root.style.setProperty('--color-chart-1', theme.chart.c1);
   root.style.setProperty('--color-chart-2', theme.chart.c2);

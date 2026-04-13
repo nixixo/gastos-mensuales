@@ -20,10 +20,10 @@ export function useExpenses(userId: string, month: number, year: number) {
   const recurringProcessedRef = useRef<string>(`${userId}-${year}-${month}`);
 
   const load = useCallback(async () => {
-    // Don't load if userId is empty - use cached expenses from ref
+    // Don't load until userId is ready
     if (!userId) {
-      setExpenses(expensesRef.current);
-      setIsLoading(false);
+      setExpenses([]);
+      setIsLoading(true);
       return;
     }
 

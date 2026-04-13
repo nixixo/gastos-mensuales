@@ -9,6 +9,10 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+/android
+.claude
+.idea
+*.md
 
 # testing
 /coverage

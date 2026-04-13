@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { LuPlus, LuLogOut, LuSettings } from "react-icons/lu";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,8 +21,9 @@ export default function Home() {
   const { user, loading: authLoading, logout } = useAuth();
   const [tab, setTab] = useState<Tab>("actual");
   const [modalOpen, setModalOpen] = useState(false);
-  const [userId, setUserId] = useState<string>("");
   const [isClient, setIsClient] = useState(false);
+  const [showFab, setShowFab] = useState(true);
+  const lastScrollY = useRef(0);
 
   // Hydration fix: only render on client
   useEffect(() => {
@@ -36,19 +37,49 @@ export default function Home() {
     }
   }, [authLoading, user, router]);
 
-  // Mantener userId estable incluso cuando user cambia
+  // Hide FAB on scroll down, show it on scroll up
   useEffect(() => {
-    if (user?.id) {
-      setUserId(user.id);
-    }
-  }, [user?.id]);
+    lastScrollY.current = window.scrollY;
+    let ticking = false;
 
+    const updateFabVisibility = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollY.current;
+
+      if (currentScrollY <= 24) {
+        setShowFab(true);
+      } else if (delta > 8) {
+        setShowFab(false);
+      } else if (delta < -2) {
+        setShowFab(true);
+      }
+      lastScrollY.current = currentScrollY;
+
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateFabVisibility);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const userId = user?.id ?? "";
   const { expenses, total, isLoading, addExpense, deleteExpense, updateAmount } =
     useExpenses(userId, current.month, current.year);
 
-  // Prevent hydration mismatch during auth check
-  if (!isClient || authLoading || !user) {
-    return null;
+  // Hold UI until auth and initial expenses are ready
+  if (!isClient || authLoading || !user || !userId || isLoading) {
+    return (
+      <div className="flex flex-1 w-full items-center justify-center px-4 py-8">
+        <div className="h-8 w-8 border-2 border-ui border-t-[var(--color-accent-primary)] rounded-full animate-spin" />
+      </div>
+    );
   }
 
   const handleLogout = () => {
@@ -57,7 +88,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col flex-1 w-full max-w-md mx-auto px-4 py-8 gap-6">
+    <div className="flex flex-col flex-1 w-full max-w-md mx-auto px-4 py-8 gap-6 animate-page-fade-in">
       {/* User header with logout */}
       <div className="flex items-center justify-between">
         <div>
@@ -116,10 +147,10 @@ export default function Home() {
         <>
           {!isLoading && <DonutChart expenses={expenses} total={total} />}
 
-          <div className="flex-1">
+          <div className="flex-1 pb-20 sm:pb-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-16">
-                <div className="h-5 w-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="h-5 w-5 border-2 border-ui border-t-[var(--color-accent-primary)] rounded-full animate-spin" />
               </div>
             ) : (
               <ExpenseList expenses={expenses} onDelete={deleteExpense} onUpdateAmount={updateAmount} />
@@ -129,7 +160,11 @@ export default function Home() {
           {/* FAB */}
           <button
             onClick={() => setModalOpen(true)}
-            className="fixed bottom-6 right-6 h-14 w-14 flex items-center justify-center rounded-full btn-primary shadow-lg active:scale-95"
+            className={`fixed right-6 bottom-[calc(1.5rem+env(safe-area-inset-bottom))] h-14 w-14 flex items-center justify-center rounded-full btn-primary shadow-lg active:scale-95 transition-all duration-200 ${
+              showFab
+                ? "opacity-100 translate-y-0 pointer-events-auto"
+                : "opacity-0 translate-y-3 pointer-events-none"
+            }`}
           >
             <LuPlus size={24} />
           </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { LuX } from "react-icons/lu";
+import { LuCheck, LuX } from "react-icons/lu";
 import { detectIcon, ICON_MAP } from "@/lib/icon-map";
 import { getUserNameMappings } from "@/lib/db";
 import { NameMapping } from "@/lib/types";
@@ -301,17 +301,27 @@ export default function AddExpenseModal({
         </div>
 
         {/* Is Monthly checkbox */}
-        <div className="flex items-center gap-3 bg-ui-input rounded-xl px-4 py-3 border border-ui">
-          <input
-            type="checkbox"
-            id="monthly"
-            checked={isMonthly}
-            onChange={(e) => setIsMonthly(e.target.checked)}
-            className="w-4 h-4 rounded cursor-pointer accent-white"
-          />
-          <label htmlFor="monthly" className="flex-1 text-sm text-secondary cursor-pointer">
-            ¿Es un gasto mensual recurrente?
-          </label>
+        <div className="bg-ui-input rounded-xl px-4 py-3 border border-ui">
+          <button
+            type="button"
+            role="checkbox"
+            aria-checked={isMonthly}
+            onClick={() => setIsMonthly((prev) => !prev)}
+            className="w-full flex items-center gap-3 text-left"
+          >
+            <span
+              className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
+                isMonthly
+                  ? "bg-accent border-accent text-accent-contrast"
+                  : "bg-transparent border-ui text-transparent"
+              }`}
+            >
+              <LuCheck size={13} />
+            </span>
+            <span className="flex-1 text-sm text-secondary">
+              Es un gasto mensual recurrente?
+            </span>
+          </button>
         </div>
 
         {/* Icon picker */}

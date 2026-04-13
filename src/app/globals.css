@@ -18,6 +18,7 @@
   --color-ui-input: rgba(255, 255, 255, 0.05);
 
   --color-accent-primary: #ffffff;
+  --color-accent-contrast: #000000;
 
   /* Chart palette */
   --color-chart-1: #ffffff;
@@ -91,6 +92,18 @@ body {
   transition: opacity 0.2s ease;
 }
 
+.bg-accent {
+  background-color: var(--color-accent-primary);
+}
+
+.border-accent {
+  border-color: var(--color-accent-primary);
+}
+
+.text-accent-contrast {
+  color: var(--color-accent-contrast);
+}
+
 .btn-primary:hover {
   opacity: 0.9;
 }
@@ -131,4 +144,17 @@ body {
 
 .animate-slide-up {
   animation: slide-up 0.25s ease-out;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-page-fade-in {
+  animation: page-fade-in 0.28s ease-out both;
 }

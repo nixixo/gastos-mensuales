@@ -99,8 +99,7 @@ export default function ExpenseItem({
 
       <button
         onClick={() => onDelete(expense.id)}
-        className="p-1.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-ui-hover transition-opacity text-secondary hover:text-primary"
-      >
+        className="p-1.5 rounded-full hover:bg-ui-hover transition-colors text-secondary hover:text-primary"      >
         <LuX size={14} />
       </button>
     </div>

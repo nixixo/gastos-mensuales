@@ -25,6 +25,8 @@ const RING_WIDTH = 10;
 const RING_GAP = 7;
 const CENTER = 160;
 const SEGMENT_GAP_DEG = 6;
+const INNER_RING_COMPACT_THRESHOLD_DEG = 20;
+const INNER_RING_COMPACT_WIDTH = 8;
 
 const DEFAULT_COLORS = [
   "var(--color-chart-1)",
@@ -94,6 +96,7 @@ interface Arc {
   startDeg: number;
   endDeg: number;
   color: string;
+  strokeWidth: number;
 }
 
 export default function DonutChart({ expenses, total }: DonutChartProps) {
@@ -123,6 +126,10 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
         const trim = Math.min(halfExtra, maxHalf);
         const start = cursor + trim;
         const end = cursor + segDeg - trim;
+        const strokeWidth =
+          ring === 0 && segDeg <= INNER_RING_COMPACT_THRESHOLD_DEG
+            ? INNER_RING_COMPACT_WIDTH
+            : RING_WIDTH;
 
         result.push({
           segmentKey: seg.key,
@@ -131,6 +138,7 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
           startDeg: start,
           endDeg: end,
           color: seg.color,
+          strokeWidth,
         });
       }
 
@@ -233,7 +241,7 @@ export default function DonutChart({ expenses, total }: DonutChartProps) {
                     d={arcPath(CENTER, CENTER, arc.radius, arc.startDeg, arc.endDeg)}
                     fill="none"
                     stroke={arc.color}
-                    strokeWidth={RING_WIDTH}
+                    strokeWidth={arc.strokeWidth}
                     strokeLinecap="round"
                   />
                 ))}

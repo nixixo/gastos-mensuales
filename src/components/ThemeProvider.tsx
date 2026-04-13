@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
-import { applyTheme, DEFAULT_THEME } from "@/lib/themes";
+import { useLayoutEffect } from "react";
+import { applyTheme, DEFAULT_THEME, THEMES, ThemeName } from "@/lib/themes";
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Load theme from localStorage on mount
     try {
       const stored = localStorage.getItem("gastos-theme");
-      const savedTheme = stored || DEFAULT_THEME;
-      applyTheme(savedTheme as any);
+      const savedTheme: ThemeName =
+        stored && stored in THEMES ? (stored as ThemeName) : DEFAULT_THEME;
+      applyTheme(savedTheme);
     } catch (error) {
       console.error("Failed to apply theme:", error);
       applyTheme(DEFAULT_THEME);
