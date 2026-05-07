@@ -4,7 +4,9 @@ export type ThemeName =
   | 'pastel-pink'
   | 'midnight-rose'
   | 'midnight-butter'
-  | 'pastel-yellow';
+  | 'pastel-yellow'
+  | 'midnight-lilac'
+  | 'pastel-lilac';
 
 export interface ThemeColors {
   name: ThemeName;
@@ -242,6 +244,72 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
       c6: '#fff6c0',
       c7: '#aa8400',
       c8: '#fffbe0',
+    },
+  },
+  'midnight-lilac': {
+    name: 'midnight-lilac',
+    label: 'Negro y Morado',
+    bg: {
+      primary: '#09070d',
+      secondary: '#15111c',
+      tertiary: '#100d16',
+    },
+    text: {
+      primary: '#f2e9fb',
+      secondary: 'rgba(242, 233, 251, 0.68)',
+      tertiary: 'rgba(242, 233, 251, 0.38)',
+    },
+    ui: {
+      border: 'rgba(206, 182, 235, 0.16)',
+      hover: 'rgba(206, 182, 235, 0.08)',
+      input: 'rgba(206, 182, 235, 0.07)',
+    },
+    accent: {
+      primary: '#ceb6eb',
+      contrast: '#171020',
+    },
+    chart: {
+      c1: '#ceb6eb',
+      c2: '#b996e6',
+      c3: '#a575dd',
+      c4: '#decdf3',
+      c5: '#8d56cb',
+      c6: '#eadff8',
+      c7: '#7238b2',
+      c8: '#f4eefc',
+    },
+  },
+  'pastel-lilac': {
+    name: 'pastel-lilac',
+    label: 'Morados Pasteles',
+    bg: {
+      primary: '#faf6fe',
+      secondary: '#f1e8fa',
+      tertiary: '#e8d9f6',
+    },
+    text: {
+      primary: '#4f3b68',
+      secondary: 'rgba(79, 59, 104, 0.6)',
+      tertiary: 'rgba(79, 59, 104, 0.35)',
+    },
+    ui: {
+      border: 'rgba(79, 59, 104, 0.12)',
+      hover: 'rgba(79, 59, 104, 0.05)',
+      input: 'rgba(79, 59, 104, 0.06)',
+    },
+    accent: {
+      primary: '#a985d6',
+      contrast: '#faf6fe',
+    },
+    chart: {
+      c1: '#a985d6',
+      c2: '#bea2e1',
+      c3: '#d1bde9',
+      c4: '#e4d6f3',
+      c5: '#8f66c7',
+      c6: '#efe6f9',
+      c7: '#7446b3',
+      c8: '#f8f3fd',
     },
   },
 };

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LuPlus, LuLogOut, LuSettings, LuListTodo } from "react-icons/lu";
+import { LuPlus, LuLogOut, LuSettings, LuListTodo, LuSearch, LuX } from "react-icons/lu";
 import { useAuth } from "@/hooks/useAuth";
 import { useExpenses } from "@/hooks/useExpenses";
 import { formatCLP, getCurrentMonth, getMonthName, getMonthYearFromDate } from "@/lib/utils";
@@ -27,6 +27,7 @@ export default function Home() {
   const [tab, setTab] = useState<Tab>("actual");
   const [modalOpen, setModalOpen] = useState(false);
   const [shoppingOpen, setShoppingOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [showFab, setShowFab] = useState(true);
   const lastScrollY = useRef(0);
@@ -86,6 +87,12 @@ export default function Home() {
     deleteItem: deleteShoppingItem,
   } = useShoppingList(userId);
   const remaining = budget !== null ? budget - total : null;
+  const deferredSearch = useDeferredValue(search);
+  const filteredExpenses = useMemo(() => {
+    const query = deferredSearch.trim().toLowerCase();
+    if (!query) return expenses;
+    return expenses.filter((expense) => expense.name.toLowerCase().includes(query));
+  }, [expenses, deferredSearch]);
 
   // Hold UI until auth and initial expenses are ready
   if (!isClient || authLoading || !user || !userId || isLoading) {
@@ -207,6 +214,27 @@ export default function Home() {
         <>
           {!isLoading && <DonutChart expenses={expenses} total={total} />}
 
+          <div className="flex items-center gap-3 bg-ui-input rounded-xl px-4 py-3 border border-ui focus-within:border-ui transition-colors">
+            <LuSearch size={16} className="text-tertiary shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar gasto..."
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-tertiary"
+            />
+            {search.trim() && (
+              <button
+                onClick={() => setSearch("")}
+                className="shrink-0 p-1 rounded-full hover:bg-ui-hover transition-colors text-tertiary hover:text-primary"
+                title="Limpiar busqueda"
+                type="button"
+              >
+                <LuX size={14} />
+              </button>
+            )}
+          </div>
+
           <div className="flex-1 pb-20 sm:pb-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-16">
@@ -214,10 +242,11 @@ export default function Home() {
               </div>
             ) : (
               <ExpenseList
-                expenses={expenses}
+                expenses={filteredExpenses}
                 onDelete={deleteExpense}
                 onUpdateAmount={updateAmount}
                 onUpdateName={updateName}
+                emptyMessage={search.trim() ? "No se encontraron gastos" : undefined}
               />
             )}
           </div>

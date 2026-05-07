@@ -9,6 +9,7 @@ interface ExpenseListProps {
   onDelete: (id: string) => void;
   onUpdateAmount: (id: string, amount: number) => void;
   onUpdateName: (id: string, name: string) => void;
+  emptyMessage?: string;
 }
 
 export default function ExpenseList({
@@ -16,9 +17,10 @@ export default function ExpenseList({
   onDelete,
   onUpdateAmount,
   onUpdateName,
+  emptyMessage,
 }: ExpenseListProps) {
   if (expenses.length === 0) {
-    return <EmptyState />;
+    return <EmptyState message={emptyMessage} />;
   }
 
   return (

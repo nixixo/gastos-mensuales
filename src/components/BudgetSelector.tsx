@@ -70,7 +70,7 @@ export default function BudgetSelector({ budget, onChange }: BudgetSelectorProps
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-64 bg-secondary backdrop-blur-md border border-ui rounded-2xl shadow-xl p-3 z-50">
+        <div className="fixed left-4 right-4 top-20 z-50 rounded-2xl border border-ui bg-secondary p-3 shadow-xl backdrop-blur-md sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-64">
           <p className="text-sm font-medium text-primary">Presupuesto del mes</p>
           <p className="mt-1 text-xs text-tertiary">
             {budget ? `Actual: ${formatCLP(budget)}` : "Aun no has definido un monto"}

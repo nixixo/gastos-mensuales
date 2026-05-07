@@ -38,7 +38,7 @@ export default function ThemeSelector() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 mt-2 w-52 bg-secondary backdrop-blur-md border border-ui rounded-2xl shadow-xl py-2 z-50">
+        <div className="fixed left-4 right-4 top-20 z-50 rounded-2xl border border-ui bg-secondary py-2 shadow-xl backdrop-blur-md sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-52">
           {themeEntries.map(([themeName, themeData]) => (
             <button
               key={themeName}
