@@ -2,15 +2,20 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { LuPlus, LuLogOut, LuSettings } from "react-icons/lu";
+import { LuPlus, LuLogOut, LuSettings, LuListTodo } from "react-icons/lu";
 import { useAuth } from "@/hooks/useAuth";
 import { useExpenses } from "@/hooks/useExpenses";
-import { getCurrentMonth, getMonthName } from "@/lib/utils";
+import { formatCLP, getCurrentMonth, getMonthName, getMonthYearFromDate } from "@/lib/utils";
 import DonutChart from "@/components/DonutChart";
 import ExpenseList from "@/components/ExpenseList";
 import AddExpenseModal from "@/components/AddExpenseModal";
 import History from "@/components/History";
 import ThemeSelector from "@/components/ThemeSelector";
+import BudgetSelector from "@/components/BudgetSelector";
+import { useMonthlyBudget } from "@/hooks/useMonthlyBudget";
+import { useShoppingList } from "@/hooks/useShoppingList";
+import ShoppingListModal from "@/components/ShoppingListModal";
+import type { ShoppingItem, Expense } from "@/lib/types";
 
 const current = getCurrentMonth();
 
@@ -21,6 +26,7 @@ export default function Home() {
   const { user, loading: authLoading, logout } = useAuth();
   const [tab, setTab] = useState<Tab>("actual");
   const [modalOpen, setModalOpen] = useState(false);
+  const [shoppingOpen, setShoppingOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [showFab, setShowFab] = useState(true);
   const lastScrollY = useRef(0);
@@ -70,8 +76,16 @@ export default function Home() {
   }, []);
 
   const userId = user?.id ?? "";
-  const { expenses, total, isLoading, addExpense, deleteExpense, updateAmount } =
+  const { expenses, total, isLoading, addExpense, addPreparedExpense, deleteExpense, updateAmount, updateName } =
     useExpenses(userId, current.month, current.year);
+  const { budget, setBudget } = useMonthlyBudget(userId, current.month, current.year);
+  const {
+    items: shoppingItems,
+    isLoading: shoppingLoading,
+    addItem: addShoppingItem,
+    deleteItem: deleteShoppingItem,
+  } = useShoppingList(userId);
+  const remaining = budget !== null ? budget - total : null;
 
   // Hold UI until auth and initial expenses are ready
   if (!isClient || authLoading || !user || !userId || isLoading) {
@@ -87,6 +101,25 @@ export default function Home() {
     router.push("/auth");
   };
 
+  const handleConfirmShoppingItem = async (item: ShoppingItem) => {
+    const { month, year } = getMonthYearFromDate(item.date);
+    const expense: Expense = {
+      id: crypto.randomUUID(),
+      userId: item.userId,
+      name: item.name,
+      amount: item.amount,
+      icon: item.icon,
+      date: item.date,
+      isMonthly: false,
+      month,
+      year,
+      createdAt: Date.now(),
+    };
+
+    await addPreparedExpense(expense);
+    await deleteShoppingItem(item.id);
+  };
+
   return (
     <div className="flex flex-col flex-1 w-full max-w-md mx-auto px-4 py-8 gap-6 animate-page-fade-in">
       {/* User header with logout */}
@@ -97,6 +130,19 @@ export default function Home() {
         </div>
         <div className="flex gap-2">
           <ThemeSelector />
+          <BudgetSelector budget={budget} onChange={setBudget} />
+          <button
+            onClick={() => setShoppingOpen(true)}
+            className="p-2 hover:bg-ui-hover rounded-lg transition-colors text-primary relative"
+            title="Lista por comprar"
+          >
+            <LuListTodo size={20} />
+            {shoppingItems.length > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[var(--color-accent-primary)] text-[var(--color-accent-contrast)] text-[10px] font-semibold flex items-center justify-center">
+                {shoppingItems.length}
+              </span>
+            )}
+          </button>
           <button
             onClick={() => router.push("/settings")}
             className="p-2 hover:bg-ui-hover rounded-lg transition-colors"
@@ -118,6 +164,20 @@ export default function Home() {
       <h2 className="text-lg font-medium tracking-tight text-center">
         {getMonthName(current.month)} {current.year}
       </h2>
+      {budget !== null && (
+        <div className="text-center">
+          <p className="text-xs text-tertiary">Saldo restante</p>
+          <p
+            className={`text-base font-semibold ${
+              remaining !== null && remaining < 0
+                ? "text-red-400"
+                : "text-[var(--color-accent-primary)]"
+            }`}
+          >
+            {formatCLP(remaining ?? 0)}
+          </p>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-1 bg-ui-input rounded-xl p-1">
@@ -153,7 +213,12 @@ export default function Home() {
                 <div className="h-5 w-5 border-2 border-ui border-t-[var(--color-accent-primary)] rounded-full animate-spin" />
               </div>
             ) : (
-              <ExpenseList expenses={expenses} onDelete={deleteExpense} onUpdateAmount={updateAmount} />
+              <ExpenseList
+                expenses={expenses}
+                onDelete={deleteExpense}
+                onUpdateAmount={updateAmount}
+                onUpdateName={updateName}
+              />
             )}
           </div>
 
@@ -175,10 +240,22 @@ export default function Home() {
             onAdd={addExpense}
             userId={user.id}
           />
+
         </>
       ) : (
         <History userId={user.id} />
       )}
+
+      <ShoppingListModal
+        open={shoppingOpen}
+        onClose={() => setShoppingOpen(false)}
+        userId={user.id}
+        items={shoppingItems}
+        isLoading={shoppingLoading}
+        onAdd={addShoppingItem}
+        onConfirm={handleConfirmShoppingItem}
+        onDelete={deleteShoppingItem}
+      />
     </div>
   );
 }

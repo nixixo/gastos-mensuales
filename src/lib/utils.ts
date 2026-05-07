@@ -16,6 +16,22 @@ export function getCurrentMonth(): { month: number; year: number } {
   return { month: now.getMonth() + 1, year: now.getFullYear() };
 }
 
+export function getMonthYearFromDate(dateStr: string): { month: number; year: number } {
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) {
+    return getCurrentMonth();
+  }
+
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+
+  if (!year || !month || month < 1 || month > 12) {
+    return getCurrentMonth();
+  }
+
+  return { month, year };
+}
+
 export function getPreviousMonth(month: number, year: number) {
   if (month === 1) return { month: 12, year: year - 1 };
   return { month: month - 1, year };

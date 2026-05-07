@@ -8,9 +8,15 @@ interface ExpenseListProps {
   expenses: Expense[];
   onDelete: (id: string) => void;
   onUpdateAmount: (id: string, amount: number) => void;
+  onUpdateName: (id: string, name: string) => void;
 }
 
-export default function ExpenseList({ expenses, onDelete, onUpdateAmount }: ExpenseListProps) {
+export default function ExpenseList({
+  expenses,
+  onDelete,
+  onUpdateAmount,
+  onUpdateName,
+}: ExpenseListProps) {
   if (expenses.length === 0) {
     return <EmptyState />;
   }
@@ -23,6 +29,7 @@ export default function ExpenseList({ expenses, onDelete, onUpdateAmount }: Expe
           expense={expense}
           onDelete={onDelete}
           onUpdateAmount={onUpdateAmount}
+          onUpdateName={onUpdateName}
         />
       ))}
     </div>

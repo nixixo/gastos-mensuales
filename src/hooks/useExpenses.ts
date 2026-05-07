@@ -73,6 +73,18 @@ export function useExpenses(userId: string, month: number, year: number) {
     [userId, month, year]
   );
 
+  const addPreparedExpense = useCallback(async (expense: Expense) => {
+    await dbAdd(expense);
+
+    if (expense.year !== year || expense.month !== month) {
+      return;
+    }
+
+    const updated = [expense, ...expensesRef.current];
+    expensesRef.current = updated;
+    setExpenses(updated);
+  }, [month, year]);
+
   const deleteExpense = useCallback(async (id: string) => {
     await dbDelete(id);
     const updated = expensesRef.current.filter((e) => e.id !== id);
@@ -87,5 +99,21 @@ export function useExpenses(userId: string, month: number, year: number) {
     setExpenses(updated);
   }, []);
 
-  return { expenses, total, isLoading, addExpense, deleteExpense, updateAmount };
+  const updateName = useCallback(async (id: string, name: string) => {
+    await dbUpdate(id, { name } as Expense);
+    const updated = expensesRef.current.map((e) => (e.id === id ? { ...e, name } : e));
+    expensesRef.current = updated;
+    setExpenses(updated);
+  }, []);
+
+  return {
+    expenses,
+    total,
+    isLoading,
+    addExpense,
+    addPreparedExpense,
+    deleteExpense,
+    updateAmount,
+    updateName,
+  };
 }

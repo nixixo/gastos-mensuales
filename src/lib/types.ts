@@ -11,6 +11,16 @@ export interface Expense {
   createdAt: number;
 }
 
+export interface ShoppingItem {
+  id: string;
+  userId: string;
+  name: string;
+  amount: number;
+  icon: string;
+  date: string; // ISO format: YYYY-MM-DD
+  createdAt: number;
+}
+
 export interface NameMapping {
   id: string;
   userId: string;

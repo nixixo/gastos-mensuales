@@ -12,6 +12,9 @@ interface AddExpenseModalProps {
   onClose: () => void;
   onAdd: (name: string, amount: number, icon: string, date: string, isMonthly: boolean) => void;
   userId: string;
+  title?: string;
+  submitLabel?: string;
+  showMonthlyOption?: boolean;
 }
 
 export default function AddExpenseModal({
@@ -19,6 +22,9 @@ export default function AddExpenseModal({
   onClose,
   onAdd,
   userId,
+  title = "Agregar gasto",
+  submitLabel = "Agregar",
+  showMonthlyOption = true,
 }: AddExpenseModalProps) {
   // Helper to get today's date in local timezone (YYYY-MM-DD)
   const getTodayDateString = () => {
@@ -148,7 +154,7 @@ export default function AddExpenseModal({
     const parsed = parseInt(amount, 10);
     if (!trimmed || !parsed || parsed <= 0 || !date) return;
 
-    onAdd(trimmed, parsed, icon, date, isMonthly);
+    onAdd(trimmed, parsed, icon, date, showMonthlyOption ? isMonthly : false);
     setName("");
     setAmount("");
     setIcon("other");
@@ -184,7 +190,7 @@ export default function AddExpenseModal({
       <div className="relative w-full sm:max-w-md bg-secondary border border-ui rounded-t-2xl sm:rounded-2xl p-6 flex flex-col gap-5 animate-slide-up max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Agregar gasto</h3>
+          <h3 className="text-lg font-semibold">{title}</h3>
           <button
             onClick={onClose}
             className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
@@ -300,29 +306,30 @@ export default function AddExpenseModal({
           />
         </div>
 
-        {/* Is Monthly checkbox */}
-        <div className="bg-ui-input rounded-xl px-4 py-3 border border-ui">
-          <button
-            type="button"
-            role="checkbox"
-            aria-checked={isMonthly}
-            onClick={() => setIsMonthly((prev) => !prev)}
-            className="w-full flex items-center gap-3 text-left"
-          >
-            <span
-              className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
-                isMonthly
-                  ? "bg-accent border-accent text-accent-contrast"
-                  : "bg-transparent border-ui text-transparent"
-              }`}
+        {showMonthlyOption && (
+          <div className="bg-ui-input rounded-xl px-4 py-3 border border-ui">
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={isMonthly}
+              onClick={() => setIsMonthly((prev) => !prev)}
+              className="w-full flex items-center gap-3 text-left"
             >
-              <LuCheck size={13} />
-            </span>
-            <span className="flex-1 text-sm text-secondary">
-              Es un gasto mensual recurrente?
-            </span>
-          </button>
-        </div>
+              <span
+                className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
+                  isMonthly
+                    ? "bg-accent border-accent text-accent-contrast"
+                    : "bg-transparent border-ui text-transparent"
+                }`}
+              >
+                <LuCheck size={13} />
+              </span>
+              <span className="flex-1 text-sm text-secondary">
+                Es un gasto mensual recurrente?
+              </span>
+            </button>
+          </div>
+        )}
 
         {/* Icon picker */}
         <div className="flex flex-col gap-1.5">
@@ -338,7 +345,7 @@ export default function AddExpenseModal({
           disabled={!name.trim() || !amount || parseInt(amount, 10) <= 0 || !date}
           className="w-full py-3 rounded-xl btn-primary font-medium text-sm disabled:opacity-20 disabled:cursor-not-allowed"
         >
-          Agregar
+          {submitLabel}
         </button>
       </div>
     </div>

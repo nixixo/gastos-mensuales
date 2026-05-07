@@ -10,44 +10,61 @@ interface ExpenseItemProps {
   expense: Expense;
   onDelete: (id: string) => void;
   onUpdateAmount: (id: string, amount: number) => void;
+  onUpdateName: (id: string, name: string) => void;
 }
 
 export default function ExpenseItem({
   expense,
   onDelete,
   onUpdateAmount,
+  onUpdateName,
 }: ExpenseItemProps) {
   const entry = ICON_MAP[expense.icon] ?? ICON_MAP["other"];
   const Icon = entry.icon;
   const brandColor = entry.category === "brand" ? entry.color : undefined;
 
-  const [editing, setEditing] = useState(false);
+  const [editingField, setEditingField] = useState<"name" | "amount" | null>(null);
   const [editValue, setEditValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editing && inputRef.current) {
+    if (editingField && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
     }
-  }, [editing]);
+  }, [editingField]);
 
-  const handleStartEdit = () => {
+  const handleStartAmountEdit = () => {
     setEditValue(String(expense.amount));
-    setEditing(true);
+    setEditingField("amount");
+  };
+
+  const handleStartNameEdit = () => {
+    setEditValue(expense.name);
+    setEditingField("name");
   };
 
   const handleConfirm = () => {
-    const parsed = parseInt(editValue, 10);
-    if (parsed && parsed > 0 && parsed !== expense.amount) {
-      onUpdateAmount(expense.id, parsed);
+    if (editingField === "amount") {
+      const parsed = parseInt(editValue, 10);
+      if (parsed && parsed > 0 && parsed !== expense.amount) {
+        onUpdateAmount(expense.id, parsed);
+      }
     }
-    setEditing(false);
+
+    if (editingField === "name") {
+      const trimmed = editValue.trim();
+      if (trimmed && trimmed !== expense.name) {
+        onUpdateName(expense.id, trimmed);
+      }
+    }
+
+    setEditingField(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleConfirm();
-    if (e.key === "Escape") setEditing(false);
+    if (e.key === "Escape") setEditingField(null);
   };
 
   return (
@@ -61,14 +78,32 @@ export default function ExpenseItem({
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{expense.name}</p>
+        {editingField === "name" ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleConfirm}
+            className="w-full bg-ui-input border border-ui rounded-lg px-2 py-1 text-sm font-medium outline-none focus:border-ui"
+          />
+        ) : (
+          <p
+            onClick={handleStartNameEdit}
+            className="text-sm font-medium truncate cursor-pointer hover:text-white/70 transition-colors"
+            title="Click para editar"
+          >
+            {expense.name}
+          </p>
+        )}
         <p className="text-xs text-tertiary">
           {formatDateString(expense.date)}
           {expense.isMonthly && ' • Mensual'}
         </p>
       </div>
 
-      {editing ? (
+      {editingField === "amount" ? (
         <div className="flex items-center gap-1.5">
           <span className="text-sm text-tertiary">$</span>
           <input
@@ -89,7 +124,7 @@ export default function ExpenseItem({
         </div>
       ) : (
         <span
-          onClick={handleStartEdit}
+          onClick={handleStartAmountEdit}
           className="text-sm font-medium tabular-nums cursor-pointer hover:text-white/70 transition-colors"
           title="Click para editar"
         >

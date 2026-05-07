@@ -1,11 +1,12 @@
 import { openDB, type IDBPDatabase } from "idb";
-import type { Expense, NameMapping } from "./types";
+import type { Expense, NameMapping, ShoppingItem } from "./types";
 import { supabase } from "./supabase";
 
 const DB_NAME = "expense-tracker";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_EXPENSES = "expenses";
 const STORE_MAPPINGS = "name_mappings";
+const STORE_SHOPPING = "shopping_items";
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
@@ -24,6 +25,12 @@ function getDB() {
         if (!db.objectStoreNames.contains(STORE_MAPPINGS)) {
           const mappingStore = db.createObjectStore(STORE_MAPPINGS, { keyPath: "id" });
           mappingStore.createIndex("by-user", "userId");
+        }
+
+        // Shopping items store
+        if (!db.objectStoreNames.contains(STORE_SHOPPING)) {
+          const shoppingStore = db.createObjectStore(STORE_SHOPPING, { keyPath: "id" });
+          shoppingStore.createIndex("by-user", "userId");
         }
       },
     });
@@ -200,6 +207,24 @@ export async function deleteNameMapping(id: string): Promise<void> {
 
   const db = await getDB();
   await db.delete(STORE_MAPPINGS, id);
+}
+
+// ========== SHOPPING ITEMS ==========
+
+export async function getShoppingItems(userId: string): Promise<ShoppingItem[]> {
+  const db = await getDB();
+  const items = await db.getAllFromIndex(STORE_SHOPPING, "by-user", userId);
+  return items.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export async function addShoppingItem(item: ShoppingItem): Promise<void> {
+  const db = await getDB();
+  await db.add(STORE_SHOPPING, item);
+}
+
+export async function deleteShoppingItem(id: string): Promise<void> {
+  const db = await getDB();
+  await db.delete(STORE_SHOPPING, id);
 }
 
 // ========== HELPERS ==========

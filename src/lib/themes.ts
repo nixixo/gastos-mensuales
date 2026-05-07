@@ -1,4 +1,10 @@
-export type ThemeName = 'dark' | 'pastel-gray' | 'pastel-pink';
+export type ThemeName =
+  | 'dark'
+  | 'pastel-gray'
+  | 'pastel-pink'
+  | 'midnight-rose'
+  | 'midnight-butter'
+  | 'pastel-yellow';
 
 export interface ThemeColors {
   name: ThemeName;
@@ -137,6 +143,105 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
       c6: '#f6dbe3',
       c7: '#7c2944',
       c8: '#fbecef',
+    },
+  },
+  'midnight-rose': {
+    name: 'midnight-rose',
+    label: 'Negro y Rosa',
+    bg: {
+      primary: '#090709',
+      secondary: '#171118',
+      tertiary: '#120d13',
+    },
+    text: {
+      primary: '#f7e7ef',
+      secondary: 'rgba(247, 231, 239, 0.68)',
+      tertiary: 'rgba(247, 231, 239, 0.38)',
+    },
+    ui: {
+      border: 'rgba(244, 196, 214, 0.14)',
+      hover: 'rgba(244, 196, 214, 0.08)',
+      input: 'rgba(244, 196, 214, 0.07)',
+    },
+    accent: {
+      primary: '#e7a9c1',
+      contrast: '#1a1116',
+    },
+    chart: {
+      c1: '#e7a9c1',
+      c2: '#f1bfd0',
+      c3: '#c97a99',
+      c4: '#f6d7e3',
+      c5: '#a94d71',
+      c6: '#d88aa8',
+      c7: '#8a3658',
+      c8: '#f9e8ef',
+    },
+  },
+  'midnight-butter': {
+    name: 'midnight-butter',
+    label: 'Negro y Amarillo',
+    bg: {
+      primary: '#0b0a07',
+      secondary: '#17150f',
+      tertiary: '#12100b',
+    },
+    text: {
+      primary: '#fff9d6',
+      secondary: 'rgba(255, 249, 214, 0.68)',
+      tertiary: 'rgba(255, 249, 214, 0.38)',
+    },
+    ui: {
+      border: 'rgba(255, 246, 145, 0.16)',
+      hover: 'rgba(255, 246, 145, 0.09)',
+      input: 'rgba(255, 246, 145, 0.08)',
+    },
+    accent: {
+      primary: '#ffef5c',
+      contrast: '#1a1710',
+    },
+    chart: {
+      c1: '#ffef5c',
+      c2: '#ffd93d',
+      c3: '#ffbf1f',
+      c4: '#fff28a',
+      c5: '#e5a900',
+      c6: '#ffe96b',
+      c7: '#bf8500',
+      c8: '#fff7b0',
+    },
+  },
+  'pastel-yellow': {
+    name: 'pastel-yellow',
+    label: 'Amarillos Pasteles',
+    bg: {
+      primary: '#fffef4',
+      secondary: '#fff9cf',
+      tertiary: '#fff19f',
+    },
+    text: {
+      primary: '#5f4708',
+      secondary: 'rgba(95, 71, 8, 0.6)',
+      tertiary: 'rgba(95, 71, 8, 0.35)',
+    },
+    ui: {
+      border: 'rgba(95, 71, 8, 0.12)',
+      hover: 'rgba(95, 71, 8, 0.05)',
+      input: 'rgba(95, 71, 8, 0.06)',
+    },
+    accent: {
+      primary: '#f0d23f',
+      contrast: '#fffdf1',
+    },
+    chart: {
+      c1: '#f0d23f',
+      c2: '#ffe160',
+      c3: '#ffea84',
+      c4: '#fff2a8',
+      c5: '#d8b41f',
+      c6: '#fff6c0',
+      c7: '#aa8400',
+      c8: '#fffbe0',
     },
   },
 };
