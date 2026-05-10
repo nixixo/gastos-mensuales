@@ -1,55 +1,83 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { deleteMonthlyBudget, getMonthlyBudget, upsertMonthlyBudget } from "@/lib/db";
+import type { MonthlyBudget } from "@/lib/types";
 
 interface UseMonthlyBudgetReturn {
   budget: number | null;
   setBudget: (amount: number | null) => void;
 }
 
-const STORAGE_PREFIX = "gastos-budget";
-
 export function useMonthlyBudget(
   userId: string,
   month: number,
   year: number
 ): UseMonthlyBudgetReturn {
-  const storageKey = useMemo(
-    () => `${STORAGE_PREFIX}:${userId}:${year}-${month}`,
-    [userId, year, month]
-  );
   const [budget, setBudgetState] = useState<number | null>(null);
+  const [budgetId, setBudgetId] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
+
     if (!userId) {
       setBudgetState(null);
+      setBudgetId(null);
       return;
     }
 
-    try {
-      const stored = localStorage.getItem(storageKey);
-      setBudgetState(stored ? Number(stored) : null);
-    } catch (error) {
-      console.error("Failed to load monthly budget:", error);
-      setBudgetState(null);
+    async function loadBudget() {
+      try {
+        const storedBudget = await getMonthlyBudget(userId, year, month);
+        if (active) {
+          setBudgetState(storedBudget?.amount ?? null);
+          setBudgetId(storedBudget?.id ?? null);
+        }
+      } catch (error) {
+        console.error("Failed to load monthly budget:", error);
+        if (active) {
+          setBudgetState(null);
+          setBudgetId(null);
+        }
+      }
     }
-  }, [storageKey, userId]);
+
+    loadBudget();
+
+    return () => {
+      active = false;
+    };
+  }, [userId, year, month]);
 
   const setBudget = (amount: number | null) => {
     setBudgetState(amount);
 
     if (!userId) return;
 
-    try {
-      if (amount === null) {
-        localStorage.removeItem(storageKey);
-        return;
-      }
+    void (async () => {
+      try {
+        if (amount === null) {
+          await deleteMonthlyBudget(userId, year, month);
+          setBudgetId(null);
+          return;
+        }
 
-      localStorage.setItem(storageKey, String(amount));
-    } catch (error) {
-      console.error("Failed to save monthly budget:", error);
-    }
+        const nextId = budgetId ?? crypto.randomUUID();
+        const nextBudget: MonthlyBudget = {
+          id: nextId,
+          userId,
+          month,
+          year,
+          amount,
+          createdAt: Date.now(),
+        };
+
+        await upsertMonthlyBudget(nextBudget);
+        setBudgetId(nextId);
+      } catch (error) {
+        console.error("Failed to save monthly budget:", error);
+      }
+    })();
   };
 
   return { budget, setBudget };

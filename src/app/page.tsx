@@ -221,7 +221,7 @@ export default function Home() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar gasto..."
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-tertiary"
+              className="flex-1 bg-transparent text-sm text-primary outline-none placeholder:text-tertiary"
             />
             {search.trim() && (
               <button

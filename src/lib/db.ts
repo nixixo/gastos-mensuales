@@ -1,12 +1,13 @@
 import { openDB, type IDBPDatabase } from "idb";
-import type { Expense, NameMapping, ShoppingItem } from "./types";
+import type { Expense, MonthlyBudget, NameMapping, ShoppingItem } from "./types";
 import { supabase } from "./supabase";
 
 const DB_NAME = "expense-tracker";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const STORE_EXPENSES = "expenses";
 const STORE_MAPPINGS = "name_mappings";
 const STORE_SHOPPING = "shopping_items";
+const STORE_BUDGETS = "monthly_budgets";
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
@@ -31,6 +32,12 @@ function getDB() {
         if (!db.objectStoreNames.contains(STORE_SHOPPING)) {
           const shoppingStore = db.createObjectStore(STORE_SHOPPING, { keyPath: "id" });
           shoppingStore.createIndex("by-user", "userId");
+        }
+
+        // Monthly budgets store
+        if (!db.objectStoreNames.contains(STORE_BUDGETS)) {
+          const budgetStore = db.createObjectStore(STORE_BUDGETS, { keyPath: "id" });
+          budgetStore.createIndex("by-period", ["userId", "year", "month"]);
         }
       },
     });
@@ -227,6 +234,81 @@ export async function deleteShoppingItem(id: string): Promise<void> {
   await db.delete(STORE_SHOPPING, id);
 }
 
+// ========== MONTHLY BUDGETS ==========
+
+export async function getMonthlyBudget(
+  userId: string,
+  year: number,
+  month: number
+): Promise<MonthlyBudget | null> {
+  try {
+    const { data, error } = await supabase
+      .from("monthly_budgets")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("year", year)
+      .eq("month", month)
+      .maybeSingle();
+
+    if (!error) {
+      if (!data) {
+        const db = await getDB();
+        const localBudget = await db.getFromIndex(STORE_BUDGETS, "by-period", [userId, year, month]);
+        if (localBudget) {
+          await db.delete(STORE_BUDGETS, localBudget.id);
+        }
+        return null;
+      }
+
+      const budget = mapBudgetFromDB(data);
+      const db = await getDB();
+      await db.put(STORE_BUDGETS, budget);
+      return budget;
+    }
+  } catch (e) {
+    console.warn("Supabase monthly budget fetch failed, falling back to IndexedDB:", e);
+  }
+
+  const db = await getDB();
+  return (await db.getFromIndex(STORE_BUDGETS, "by-period", [userId, year, month])) ?? null;
+}
+
+export async function upsertMonthlyBudget(budget: MonthlyBudget): Promise<void> {
+  try {
+    await supabase.from("monthly_budgets").upsert([mapBudgetToDB(budget)], {
+      onConflict: "user_id,year,month",
+    });
+  } catch (e) {
+    console.warn("Supabase monthly budget upsert failed, saving to IndexedDB only:", e);
+  }
+
+  const db = await getDB();
+  await db.put(STORE_BUDGETS, budget);
+}
+
+export async function deleteMonthlyBudget(
+  userId: string,
+  year: number,
+  month: number
+): Promise<void> {
+  try {
+    await supabase
+      .from("monthly_budgets")
+      .delete()
+      .eq("user_id", userId)
+      .eq("year", year)
+      .eq("month", month);
+  } catch (e) {
+    console.warn("Supabase monthly budget delete failed:", e);
+  }
+
+  const db = await getDB();
+  const localBudget = await db.getFromIndex(STORE_BUDGETS, "by-period", [userId, year, month]);
+  if (localBudget) {
+    await db.delete(STORE_BUDGETS, localBudget.id);
+  }
+}
+
 // ========== HELPERS ==========
 
 function aggregateMonthsSummary(
@@ -325,5 +407,36 @@ function mapMappingToDB(mapping: NameMapping): Record<string, unknown> {
     custom_name: mapping.customName,
     icon_key: mapping.iconKey,
     created_at: mapping.createdAt,
+  };
+}
+
+function mapBudgetFromDB(dbBudget: Record<string, unknown>): MonthlyBudget {
+  const createdAt = dbBudget.created_at;
+  let createdAtTime: number;
+
+  if (typeof createdAt === "number") {
+    createdAtTime = createdAt;
+  } else {
+    createdAtTime = new Date(String(createdAt)).getTime();
+  }
+
+  return {
+    id: String(dbBudget.id),
+    userId: String(dbBudget.user_id),
+    month: Number(dbBudget.month),
+    year: Number(dbBudget.year),
+    amount: Number(dbBudget.amount),
+    createdAt: createdAtTime,
+  };
+}
+
+function mapBudgetToDB(budget: MonthlyBudget): Record<string, unknown> {
+  return {
+    id: budget.id,
+    user_id: budget.userId,
+    month: budget.month,
+    year: budget.year,
+    amount: budget.amount,
+    created_at: budget.createdAt,
   };
 }

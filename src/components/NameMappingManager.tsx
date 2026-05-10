@@ -195,11 +195,11 @@ export function NameMappingManager({ userId }: NameMappingManagerProps) {
                 </div>
                 <button
                   onClick={() => handleDeleteMapping(mapping.id)}
-                  className="p-1.5 rounded hover:bg-ui-hover transition-colors ml-2 shrink-0"
+                  className="ml-2 shrink-0 rounded-lg p-2 text-tertiary hover:bg-ui-hover hover:text-primary transition-colors"
                   title="Eliminar"
                   type="button"
                 >
-                  <LuX size={14} className="text-white/40 hover:text-white/60" />
+                  <LuX size={16} />
                 </button>
               </div>
             );

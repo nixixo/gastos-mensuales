@@ -30,15 +30,29 @@ CREATE TABLE IF NOT EXISTS name_mappings (
   CONSTRAINT unique_mapping UNIQUE(user_id, custom_name)
 );
 
+-- Create monthly_budgets table
+CREATE TABLE IF NOT EXISTS monthly_budgets (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  month INTEGER NOT NULL,
+  year INTEGER NOT NULL,
+  amount INTEGER NOT NULL,
+  created_at BIGINT NOT NULL,
+  CONSTRAINT amount_positive_budget CHECK (amount > 0),
+  CONSTRAINT unique_monthly_budget UNIQUE(user_id, year, month)
+);
+
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_expenses_user_month ON expenses(user_id, year, month);
 CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
 CREATE INDEX IF NOT EXISTS idx_name_mappings_user ON name_mappings(user_id);
+CREATE INDEX IF NOT EXISTS idx_monthly_budgets_user_month ON monthly_budgets(user_id, year, month);
 
 -- Enable RLS (Row Level Security)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE name_mappings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE monthly_budgets ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for users table
 CREATE POLICY "Users can view their own profile" ON users
@@ -68,4 +82,17 @@ CREATE POLICY "Users can insert their own mappings" ON name_mappings
   FOR INSERT WITH CHECK (user_id::text = auth.uid()::text OR true);
 
 CREATE POLICY "Users can delete their own mappings" ON name_mappings
+  FOR DELETE USING (user_id::text = auth.uid()::text OR true);
+
+-- RLS Policies for monthly_budgets table
+CREATE POLICY "Users can view their own budgets" ON monthly_budgets
+  FOR SELECT USING (user_id::text = auth.uid()::text OR true);
+
+CREATE POLICY "Users can insert their own budgets" ON monthly_budgets
+  FOR INSERT WITH CHECK (user_id::text = auth.uid()::text OR true);
+
+CREATE POLICY "Users can update their own budgets" ON monthly_budgets
+  FOR UPDATE USING (user_id::text = auth.uid()::text OR true);
+
+CREATE POLICY "Users can delete their own budgets" ON monthly_budgets
   FOR DELETE USING (user_id::text = auth.uid()::text OR true);

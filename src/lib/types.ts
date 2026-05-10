@@ -21,6 +21,15 @@ export interface ShoppingItem {
   createdAt: number;
 }
 
+export interface MonthlyBudget {
+  id: string;
+  userId: string;
+  month: number;
+  year: number;
+  amount: number;
+  createdAt: number;
+}
+
 export interface NameMapping {
   id: string;
   userId: string;
