@@ -220,16 +220,56 @@ export async function deleteNameMapping(id: string): Promise<void> {
 
 export async function getShoppingItems(userId: string): Promise<ShoppingItem[]> {
   const db = await getDB();
-  const items = await db.getAllFromIndex(STORE_SHOPPING, "by-user", userId);
-  return items.sort((a, b) => b.createdAt - a.createdAt);
+  const localItems = await db.getAllFromIndex(STORE_SHOPPING, "by-user", userId);
+
+  try {
+    if (localItems.length > 0) {
+      await supabase.from("shopping_items").upsert(
+        localItems.map(mapShoppingItemToDB),
+        { onConflict: "id" }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("shopping_items")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      const tx = db.transaction(STORE_SHOPPING, "readwrite");
+      for (const item of data) {
+        await tx.store.put(mapShoppingItemFromDB(item));
+      }
+      await tx.done;
+
+      return data.map(mapShoppingItemFromDB);
+    }
+  } catch (e) {
+    console.warn("Supabase shopping items sync failed, falling back to IndexedDB:", e);
+  }
+
+  return localItems.sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function addShoppingItem(item: ShoppingItem): Promise<void> {
+  try {
+    await supabase.from("shopping_items").insert([mapShoppingItemToDB(item)]);
+  } catch (e) {
+    console.warn("Supabase shopping item insert failed, saving to IndexedDB only:", e);
+  }
+
   const db = await getDB();
   await db.add(STORE_SHOPPING, item);
 }
 
 export async function deleteShoppingItem(id: string): Promise<void> {
+  try {
+    await supabase.from("shopping_items").delete().eq("id", id);
+  } catch (e) {
+    console.warn("Supabase shopping item delete failed:", e);
+  }
+
   const db = await getDB();
   await db.delete(STORE_SHOPPING, id);
 }
@@ -407,6 +447,39 @@ function mapMappingToDB(mapping: NameMapping): Record<string, unknown> {
     custom_name: mapping.customName,
     icon_key: mapping.iconKey,
     created_at: mapping.createdAt,
+  };
+}
+
+function mapShoppingItemFromDB(dbItem: Record<string, unknown>): ShoppingItem {
+  const createdAt = dbItem.created_at;
+  let createdAtTime: number;
+
+  if (typeof createdAt === "number") {
+    createdAtTime = createdAt;
+  } else {
+    createdAtTime = new Date(String(createdAt)).getTime();
+  }
+
+  return {
+    id: String(dbItem.id),
+    userId: String(dbItem.user_id),
+    name: String(dbItem.name),
+    amount: Number(dbItem.amount),
+    icon: String(dbItem.icon),
+    date: String(dbItem.date),
+    createdAt: createdAtTime,
+  };
+}
+
+function mapShoppingItemToDB(item: ShoppingItem): Record<string, unknown> {
+  return {
+    id: item.id,
+    user_id: item.userId,
+    name: item.name,
+    amount: item.amount,
+    icon: item.icon,
+    date: item.date,
+    created_at: item.createdAt,
   };
 }
 
